@@ -6,11 +6,11 @@ Private Function (ensurePlayer)
 -Private functions are safer because:
 -They cannot be misused by other developers.
 -You avoid someone accidentally calling them incorrectly.
--They act like ìinternal rulesî of your system.
+-They act like ‚Äúinternal rules‚Äù of your system.
 
 Public Function (Damage)
 -This is what other developers can call.
--Itís clean, simple, and safe because all validations are hidden inside the private function.
+-It‚Äôs clean, simple, and safe because all validations are hidden inside the private function.
 -Public functions are the official API of your module.
 ]]
 
