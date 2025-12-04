@@ -12,7 +12,7 @@ The goal is to share knowledge and help other developers understand best practic
 - Roblox Focused: Examples are practical and applicable in Roblox Lua development.
 - Documentation: Each lesson is documented to help understand the purpose and usage.
 
-##💡 Why This Repository Exists ##
+## 💡 Why This Repository Exists ##
 
 This repository is not just code—it’s a learning journey:
 
