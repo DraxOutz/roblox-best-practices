@@ -1,34 +1,38 @@
--- Function to attempt to destroy an object
-local function CanBeDestroyed(obj)
-	local success = pcall(function()
-		obj:Destroy()  -- no space between : and Destroy
-	end)
-	return success
+local ErrorHandling = {}
+
+-- Generic Try function with optional fallback
+-- @param action function: the function to execute
+-- @param fallback? function: optional fallback on error
+-- @return any: result of the function or fallback
+function ErrorHandling.Try(action: () -> any, fallback: (() -> any)?): any
+    if type(action) ~= "function" then
+        error("Action must be a function")  -- Guard Clause
+    end
+
+    local success, result = pcall(action)
+    if success then
+        return result
+    else
+        warn("Error captured: "..tostring(result))
+        if fallback then
+            return fallback()
+        else
+            return nil
+        end
+    end
 end
 
--- Basic example
-if not CanBeDestroyed(workspace) then
-	error("The workspace cannot be destroyed")
-else
-	warn("Workspace destroyed successfully")
+-- Specific function to destroy an object safely
+-- @param obj Instance: object to destroy
+-- @return boolean: success or failure
+function ErrorHandling.DestroyObj(obj: Instance): boolean
+    return ErrorHandling.Try(function()
+        obj:Destroy()
+        return true
+    end, function()
+        warn("Custom handler: cannot destroy the object")
+        return false
+    end)
 end
 
--- Example with pcall
-local sc, er = pcall(function()
-	workspace:Destroy()
-end)
-
-if not sc then
-	warn("pcall error: "..tostring(er))
-end
-
--- Example with xpcall and custom message
-local sc2, er2 = xpcall(function()
-	workspace:Destroy()
-end, function(err)
-	return "Custom handler: "..err
-end)
-
-if not sc2 then
-	warn(er2)  -- now er2 will have the handled message
-end
+return ErrorHandling
