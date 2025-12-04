@@ -7,7 +7,7 @@ The goal is to share knowledge and help other developers understand best practic
 
 ## 🌟 Key Takeaways ##
 
--Progressive Learning: Each module builds on the previous one.
--Clean Code Practices: Focus on readability, modularity, and maintainability.
--Roblox Focused: Examples are practical and applicable in Roblox Lua development.
--Documentation: Each lesson is documented to help understand the purpose and usage. 
+- Progressive Learning: Each module builds on the previous one.
+- Clean Code Practices: Focus on readability, modularity, and maintainability.
+- Roblox Focused: Examples are practical and applicable in Roblox Lua development.
+- Documentation: Each lesson is documented to help understand the purpose and usage. 
