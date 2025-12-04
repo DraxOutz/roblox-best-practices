@@ -14,8 +14,6 @@ The goal is to share knowledge and help other developers understand best practic
 
 ## 💡 Why This Repository Exists ##
 
-This repository is not just code—it’s a learning journey:
-
 - To track progress from beginner patterns to advanced practices.
 - To share insights with other developers.
 - To showcase clean, maintainable Lua in Roblox.
