@@ -1,3 +1,11 @@
+--[[
+In Lua, table.insert is useful for storing data in a list, but it doesn’t let your objects “know what they can do.” 
+Each function has to be separate, and adding new behaviors (like Brake or Turn) requires duplicating code or writing more functions. 
+This is not object-oriented.
+With setmetatable and __index, you can create objects with their own data and shared methods. 
+Each object “knows” its properties and can use the methods from its class without duplicating code:
+]]
+
 -- Vehicle "class"
 local Vehicle = {}
 Vehicle.__index = Vehicle  -- If the object doesn't have a key, look in the Vehicle table
@@ -33,3 +41,4 @@ car2:Brake()      -- BMW is braking!
 
 car3:Accelerate() -- Tiggo is accelerating!
 car3:Brake()      -- Tiggo is braking!
+
