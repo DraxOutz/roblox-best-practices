@@ -10,4 +10,19 @@ The goal is to share knowledge and help other developers understand best practic
 - Progressive Learning: Each module builds on the previous one.
 - Clean Code Practices: Focus on readability, modularity, and maintainability.
 - Roblox Focused: Examples are practical and applicable in Roblox Lua development.
-- Documentation: Each lesson is documented to help understand the purpose and usage. 
+- Documentation: Each lesson is documented to help understand the purpose and usage.
+
+##💡 Why This Repository Exists ##
+
+This repository is not just code—it’s a learning journey:
+
+- To track progress from beginner patterns to advanced practices.
+- To share insights with other developers.
+- To showcase clean, maintainable Lua in Roblox.
+- To encourage others to adopt better coding habits.
+
+## 📌 Notes ##
+
+- Modules are numbered to reflect learning order.
+- Lessons focus on practical coding improvements, not just theory.
+- This is meant for beginners and intermediate developers looking to level up in Roblox Lua.
