@@ -1,5 +1,6 @@
 --!strict
 
+--Use the Framework on my github for better functioning
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -255,3 +256,4 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
