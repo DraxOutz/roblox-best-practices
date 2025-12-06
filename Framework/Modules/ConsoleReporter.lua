@@ -12,12 +12,13 @@ export type LogEntry = {
 	Message: string,
 }
 
--- Hist髍ico de logs
+-- Hist贸rico de logs
 local LogHistory: { LogEntry } = {}
 
--- Fun珲es internas de envio
+-- Fun莽玫es internas de envio
 local function SendError(Title: string, Message: string)
 	error(Title .. ": " .. Message)
+	return 
 end
 
 local function SendWarn(Title: string, Message: string)
@@ -30,24 +31,24 @@ end
 
 -- Dispatch table tipada
 local Functions: { [MessageType]: (string, string) -> () } = {
-	Error = SendError;
-	Warn = SendWarn;
-	Print = SendPrint;
+	Error = SendError,
+	Warn = SendWarn,
+	Print = SendPrint,
 }
 
--- Pega timestamp leg韛el
+-- Pega timestamp leg铆vel
 local function GetTimestamp(): string
-	local t = os.date("*t")
-	return string.format("[%02d:%02d:%02d]", t.hour, t.min, t.sec)
+	local now = DateTime.now():ToLocalTime()
+	return string.format("[%02d:%02d:%02d]", now.Hour, now.Minute, now.Second)
 end
 
--- Cria nova inst鈔cia do Logger (pode ter m鷏tiplas inst鈔cias se quiser)
+-- Cria nova inst芒ncia do Logger (pode ter m煤ltiplas inst芒ncias se quiser)
 function ConsoleReporter.new(): typeof(ConsoleReporter)
 	local self = setmetatable({}, ConsoleReporter)
 	return self
 end
 
--- Envia mensagem pro output e salva no hist髍ico
+-- Envia mensagem pro output e salva no hist贸rico
 function ConsoleReporter:SendMessage(Title: string, Message: string, Type: MessageType)
 	local ts = GetTimestamp()
 	local logEntry: LogEntry = {
@@ -57,7 +58,7 @@ function ConsoleReporter:SendMessage(Title: string, Message: string, Type: Messa
 		Message = Message,
 	}
 
-	-- Salva hist髍ico
+	-- Salva hist贸rico
 	table.insert(LogHistory, logEntry)
 
 	-- Dispara para Output
@@ -65,21 +66,21 @@ function ConsoleReporter:SendMessage(Title: string, Message: string, Type: Messa
 	if func then
 		func(ts .. " " .. Title, Message)
 	else
-		SendError("[ConsoleReporter]", "Tipo inv醠ido: " .. tostring(Type))
+		SendError("[ConsoleReporter]", "Tipo inv谩lido: " .. tostring(Type))
 	end
 end
 
--- Retorna hist髍ico completo
+-- Retorna hist贸rico completo
 function ConsoleReporter:GetHistory(): { LogEntry }
 	return LogHistory
 end
 
--- Limpa hist髍ico de logs
+-- Limpa hist贸rico de logs
 function ConsoleReporter:ClearHistory()
 	LogHistory = {}
 end
 
--- Filtra hist髍ico por tipo
+-- Filtra hist贸rico por tipo
 function ConsoleReporter:GetHistoryByType(Type: MessageType): { LogEntry }
 	local filtered: { LogEntry } = {}
 	for _, entry in LogHistory do
