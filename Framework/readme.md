@@ -215,7 +215,11 @@ ConfigManager:ClearPlayer(player)
 - Utilize o **MemoryManager** para controlar ciclo de vida de objetos e callbacks.
 - Utilize o **ResourceManager** para agrupar vários recursos e limpar tudo de uma vez.
 
-## Example
+## Exemplo
+
+Flow:
+Client → NetworkManager → GuardClause → ConfigManager
+
 ```lua
 NetworkManager:BindEvent("Roll", function(player)
     Guard.IsPlayer(player)
