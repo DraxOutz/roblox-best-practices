@@ -1,6 +1,6 @@
 --!strict
+-- Use the Framework on my github for better functioning
 
---Use the Framework on my github for better functioning
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -16,14 +16,65 @@ if not MODULES_FOLDER then
 	MODULES_FOLDER.Parent = ReplicatedStorage
 end
 
--- Require modules
-local Guard = require(MODULES_FOLDER:WaitForChild("GuardClause"))
-local GetAndSet = require(MODULES_FOLDER:WaitForChild("GetAndSet"))
-local Encapsulation = require(MODULES_FOLDER:WaitForChild("Encapsulation"))
-local Debounce = require(MODULES_FOLDER:WaitForChild("Debounce"))
-local OOPVehicles = require(MODULES_FOLDER:WaitForChild("OOP_Vehicles"))
-local GenericIter = require(MODULES_FOLDER:WaitForChild("GenericIteration"))
-local GameSystem = require(MODULES_FOLDER:WaitForChild("GameSystemModule"))
+-- ====== Types ======
+export type Player = Player -- Roblox builtin alias
+export type Timestamp = number
+
+export type PlayerStats = {
+	HP: number,
+	MaxHP: number,
+	Energy: number,
+	MaxEnergy: number,
+	Strength: number,
+	Speed: number,
+}
+
+export type AbilityMeta = {
+	Cost: number?,
+	Mult: number?,
+	FlatDamage: number?,
+	Cooldown: number?,
+}
+
+export type PlayerData = {
+	UserId: number,
+	Level: number,
+	XP: number,
+	Stats: PlayerStats,
+	Inventory: { [number]: any }?,
+	Abilities: { [string]: AbilityMeta }?,
+	CreatedAt: Timestamp,
+}
+
+export type Registry = { [number]: PlayerData }
+
+-- ====== Require modules with basic type hints ======
+-- Adjust the module return types here if your modules expose specific typed APIs.
+
+local Guard = require(MODULES_FOLDER:WaitForChild("GuardClause")) :: any
+local GetAndSet = require(MODULES_FOLDER:WaitForChild("GetAndSet")) :: {
+	new: (initialTable: { [string]: any }?) -> {
+		Get: (key: string) -> any,
+		Set: (key: string, value: any) -> (),
+	},
+}
+local Encapsulation = require(MODULES_FOLDER:WaitForChild("Encapsulation")) :: {
+	protect: (t: table) -> (),
+}
+local Debounce = require(MODULES_FOLDER:WaitForChild("Debounce")) :: {
+	new: () -> {
+		isDebounced: (key: string) -> boolean,
+		setDebounce: (key: string, seconds: number) -> (),
+	},
+}
+local OOPVehicles = require(MODULES_FOLDER:WaitForChild("OOP_Vehicles")) :: any
+local GenericIter = require(MODULES_FOLDER:WaitForChild("GenericIteration")) :: {
+	foreach: (tbl: table, fn: (any, any) -> ()) -> (),
+}
+local GameSystem = require(MODULES_FOLDER:WaitForChild("GameSystemModule")) :: {
+	on: (eventName: string, callback: (...any) -> ()) -> (),
+	boot: () -> (),
+}
 
 -- Remote structure: two RemoteEvents under ReplicatedStorage.AnimeRemotes
 local REMOTES = ReplicatedStorage:FindFirstChild("AnimeRemotes")
@@ -50,17 +101,22 @@ local Config = GetAndSet.new({
 })
 
 -- Encapsulated player registry. Encapsulation.protect(table) expected.
-local _registry = {}
+local _registry: Registry = {}
 Encapsulation.protect(_registry)
 
 -- PlayerManager API (exposed via _G.AnimeGame.PlayerManager)
 -- Methods: new(player), get(player), remove(player), addXP(player,amount)
-local PlayerManager = {}
+local PlayerManager: {
+	new: (self: any, player: Player) -> PlayerData,
+	get: (self: any, player: number | Player) -> PlayerData?,
+	remove: (self: any, player: number | Player) -> (),
+	addXP: (self: any, player: number | Player, amount: number?) -> (),
+} = {}
 PlayerManager.__index = PlayerManager
 
-function PlayerManager:new(player)
+function PlayerManager:new(player: Player): PlayerData
 	Guard.isA(player, "Instance", "player must be a Player instance")
-	local data = {
+	local data: PlayerData = {
 		UserId = player.UserId,
 		Level = 1,
 		XP = 0,
@@ -80,21 +136,27 @@ function PlayerManager:new(player)
 	return data
 end
 
-function PlayerManager:get(player)
+function PlayerManager:get(player: number | Player): PlayerData?
 	if typeof(player) == "number" then
-		return _registry[player] -- allow passing userId
+		return _registry[player] :: PlayerData?
 	elseif typeof(player) == "Instance" then
-		return _registry[player.UserId]
+		local p = player :: Player
+		return _registry[p.UserId]
 	end
 	return nil
 end
 
-function PlayerManager:remove(player)
-	local userId = (typeof(player) == "Instance") and player.UserId or player
+function PlayerManager:remove(player: number | Player)
+	local userId: number
+	if typeof(player) == "Instance" then
+		userId = (player :: Player).UserId
+	else
+		userId = player :: number
+	end
 	_registry[userId] = nil
 end
 
-function PlayerManager:addXP(player, amount)
+function PlayerManager:addXP(player: number | Player, amount: number?)
 	local p = self:get(player)
 	if not p then return end
 	p.XP = p.XP + (amount or 0)
@@ -114,33 +176,44 @@ end
 
 -- Ability manager using Debounce module
 -- Debounce API expected: new() -> object with :isDebounced(key), :setDebounce(key, seconds)
-local AbilityManager = {}
+local AbilityManager: {
+	register: (self: any, player: number | Player, abilityName: string, meta: AbilityMeta?) -> (),
+	canUse: (self: any, player: number | Player, abilityName: string) -> boolean,
+	use: (self: any, player: Player, abilityName: string, targetUserId: number?) -> boolean,
+} = {}
 AbilityManager.__index = AbilityManager
 local debounce = Debounce.new()
 
-function AbilityManager:register(player, abilityName, meta)
+function AbilityManager:register(player: number | Player, abilityName: string, meta: AbilityMeta?)
 	Guard.isString(abilityName, "abilityName must be a string")
 	local p = PlayerManager:get(player)
 	if not p then return end
+	p.Abilities = p.Abilities or {}
 	p.Abilities[abilityName] = meta or {}
 end
 
-function AbilityManager:canUse(player, abilityName)
+function AbilityManager:canUse(player: number | Player, abilityName: string): boolean
 	local p = PlayerManager:get(player)
 	if not p then return false end
-	local ability = p.Abilities[abilityName]
+	local ability = p.Abilities and p.Abilities[abilityName]
 	if not ability then return false end
 	if ability.Cost and p.Stats.Energy < ability.Cost then return false end
-	if ability.Cooldown and debounce:isDebounced(player.UserId .. ":" .. abilityName) then return false end
+	if ability.Cooldown and debounce:isDebounced((p.UserId :: number) .. ":" .. abilityName) then return false end
 	return true
 end
 
-function AbilityManager:use(player, abilityName, targetUserId)
+function AbilityManager:use(player: Player, abilityName: string, targetUserId: number?): boolean
 	if not self:canUse(player, abilityName) then return false end
 	local p = PlayerManager:get(player)
-	local ability = p.Abilities[abilityName]
-	if ability.Cost then p.Stats.Energy = math.max(0, p.Stats.Energy - ability.Cost) end
-	if ability.Cooldown then debounce:setDebounce(player.UserId .. ":" .. abilityName, ability.Cooldown) end
+	if not p then return false end
+	local ability = p.Abilities and p.Abilities[abilityName]
+	if ability == nil then return false end
+	if ability.Cost then
+		p.Stats.Energy = math.max(0, p.Stats.Energy - ability.Cost)
+	end
+	if ability.Cooldown then
+		debounce:setDebounce((p.UserId :: number) .. ":" .. abilityName, ability.Cooldown)
+	end
 
 	-- Resolve target (use GetPlayerByUserId to avoid string-based lookups)
 	if targetUserId then
@@ -163,53 +236,63 @@ function AbilityManager:use(player, abilityName, targetUserId)
 end
 
 -- Vehicle controller delegates to OOPVehicles module
-local VehicleController = {}
-function VehicleController:spawnFor(player, vehicleId)
+local VehicleController: {
+	spawnFor: (self: any, player: Player, vehicleId: any) -> any,
+} = {}
+function VehicleController:spawnFor(player: Player, vehicleId: any)
 	-- OOPVehicles:spawnForPlayer(player, vehicleId) expected
-	return OOPVehicles:spawnForPlayer(player, vehicleId)
+	-- cast as any because OOPVehicles exact signature unknown
+	return (OOPVehicles :: any):spawnForPlayer(player, vehicleId)
 end
 
 -- World systems using GameSystemModule
 -- GameSystem API expected: :on(eventName, callback), :boot()
-local World = {}
+local World: {
+	init: (self: any) -> (),
+	handleJoin: (self: any, player: Player) -> (),
+	handleLeave: (self: any, player: Player) -> (),
+} = {}
 World.__index = World
 
 function World:init()
 	-- Tick listener: energy regeneration
-	GameSystem:on("Tick", function(dt)
-		GenericIter.foreach(_registry, function(_, pdata)
+	GameSystem:on("Tick", function(dt: number)
+		GenericIter.foreach(_registry, function(_, pdata: PlayerData)
 			pdata.Stats.Energy = math.min(pdata.Stats.MaxEnergy, pdata.Stats.Energy + (Config:Get("ENERGY_REGEN_PER_SEC") * dt))
 		end)
 	end)
 
-	GameSystem:on("PlayerJoined", function(player)
+	GameSystem:on("PlayerJoined", function(player: Player)
 		self:handleJoin(player)
 	end)
 
-	GameSystem:on("PlayerLeft", function(player)
+	GameSystem:on("PlayerLeft", function(player: Player)
 		self:handleLeave(player)
 	end)
 end
 
-function World:handleJoin(player)
+function World:handleJoin(player: Player)
 	PlayerManager:new(player)
 	task.wait(0.1)
 	AbilityManager:register(player, "Strike", { Cost = 8, Mult = 1.2, Cooldown = 1.3 })
-	RemoteClient:FireClient(player, "Init", { Level = 1, XP = 0, Stats = PlayerManager:get(player).Stats })
+	local pdata = PlayerManager:get(player)
+	if pdata then
+		RemoteClient:FireClient(player, "Init", { Level = pdata.Level, XP = pdata.XP, Stats = pdata.Stats })
+	end
 end
 
-function World:handleLeave(player)
+function World:handleLeave(player: Player)
 	PlayerManager:remove(player.UserId)
 end
 
 -- Network handlers: validate inputs with Guard
-RemoteRequest.OnServerEvent:Connect(function(player, action, payload)
+RemoteRequest.OnServerEvent:Connect(function(player: Player, action: string, payload: any)
 	if action == "UseAbility" then
 		Guard.isTable(payload, "payload must be a table")
 		local name = payload.Name
 		Guard.isString(name, "ability name required")
 		-- client should pass target userId (number) to avoid trusting client strings
-		local targetUserId = payload.TargetUserId
+		local targetUserId = payload.TargetUserId :: number?
 		AbilityManager:use(player, name, targetUserId)
 
 	elseif action == "SpawnVehicle" then
@@ -228,11 +311,11 @@ RemoteRequest.OnServerEvent:Connect(function(player, action, payload)
 end)
 
 -- Player connection handling
-Players.PlayerAdded:Connect(function(player)
+Players.PlayerAdded:Connect(function(player: Player)
 	World:handleJoin(player)
 end)
 
-Players.PlayerRemoving:Connect(function(player)
+Players.PlayerRemoving:Connect(function(player: Player)
 	World:handleLeave(player)
 end)
 
@@ -251,9 +334,10 @@ World:init()
 task.spawn(function()
 	while true do
 		local count = 0
-		GenericIter.foreach(_registry, function(_, _v) count = count + 1 end)
+		GenericIter.foreach(_registry, function(_, _v)
+			count = count + 1
+		end)
 		print(string.format("[AnimeGame] players=%d | uptime=%.0f", count, time()))
 		task.wait(90)
 	end
 end)
-
