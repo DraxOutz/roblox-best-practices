@@ -16,7 +16,7 @@ if not MODULES_FOLDER then
 	MODULES_FOLDER.Parent = ReplicatedStorage
 end
 
--- ====== Types ======
+--Types
 export type Player = Player -- Roblox builtin alias
 export type Timestamp = number
 
@@ -48,7 +48,6 @@ export type PlayerData = {
 
 export type Registry = { [number]: PlayerData }
 
--- ====== Require modules with basic type hints ======
 -- Adjust the module return types here if your modules expose specific typed APIs.
 
 local Guard = require(MODULES_FOLDER:WaitForChild("GuardClause")) :: any
@@ -341,3 +340,4 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
