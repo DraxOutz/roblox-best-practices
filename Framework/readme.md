@@ -220,7 +220,7 @@ O framework garante:
 
 ## Créditos
 
-Feito por [DraxOutz]https://github.com/DraxOutz
-Revisado por @puelor
+Feito por [DraxOutz](https://github.com/DraxOutz)  
+Revisado por [@puelor](https://github.com/puelor)
 
 Ele deve ser utilizado como **base para todos os sistemas do jogo**, garantindo código limpo, manutenção mais fácil e segurança em operações críticas.
