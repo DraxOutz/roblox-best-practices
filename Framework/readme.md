@@ -224,4 +224,4 @@ Ele deve ser utilizado como **base para todos os sistemas do jogo**, garantindo 
 ## Créditos
 
 Feito por [DraxOutz](https://github.com/DraxOutz)  
-Revisado por [@puelor](https://github.com/puelor)
+Revisado por [Puelor](https://github.com/puelor)
