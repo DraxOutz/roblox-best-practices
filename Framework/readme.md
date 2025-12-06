@@ -218,9 +218,10 @@ O framework garante:
 * Configurações globais e individuais.
 * Logs e debug padronizados.
 
+Ele deve ser utilizado como **base para todos os sistemas do jogo**, garantindo código limpo, manutenção mais fácil e segurança em operações críticas.
+
+
 ## Créditos
 
 Feito por [DraxOutz](https://github.com/DraxOutz)  
 Revisado por [@puelor](https://github.com/puelor)
-
-Ele deve ser utilizado como **base para todos os sistemas do jogo**, garantindo código limpo, manutenção mais fácil e segurança em operações críticas.
