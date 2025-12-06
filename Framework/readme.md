@@ -205,6 +205,23 @@ ConfigManager:ClearPlayer(player)
 ```
 
 ---
+## Como usar?
+
+Utilize o **GuardClause** para validações antes da aplicação da lógica.
+Utilize o **ConsoleReporter** para mensagens de debug.
+Utilize o **ConfigManager** para configuração de valores e estados.
+Utilize o **EventManager** para criar e gerenciar eventos internos.
+Utilize o **NetworkManager** para validações dos dados do cliente antes de disparar o **EventManager**.
+Utilize o **MemoryManager** para controlar ciclo de vida de objetos e callbacks.
+Utilize o **ResourceManager** para agrupar vários recursos e limpar tudo de uma vez.
+
+## Example
+```lua
+NetworkManager:BindEvent("Roll", function(player)
+    Guard.IsPlayer(player)
+    ConfigManager:SetPlayer(player, "CanRoll", false)
+end)
+
 
 ## Conclusão
 
