@@ -1,6 +1,7 @@
 --!strict
 -- Use the Framework on my github for better functioning
 -- maintain the standard for better efficiency
+-- Sorry for the English mistakes, by default I do it in Portuguese
 -- Services (I recommend putting these services in a single module, but it is just for example)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -340,6 +341,7 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
 
