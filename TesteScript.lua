@@ -1,6 +1,6 @@
 --!strict
 -- Use the Framework on my github for better functioning
-
+-- maintain the standard for better efficiency
 -- Services (I recommend putting these services in a single module, but it is just for example)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -8,7 +8,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 
--- Modules folder
+-- Modules folder (
 local MODULES_FOLDER = ReplicatedStorage:FindFirstChild("Modules")
 if not MODULES_FOLDER then
 	MODULES_FOLDER = Instance.new("Folder")
@@ -91,7 +91,7 @@ local RemoteClient = REMOTES:FindFirstChild("Client") or Instance.new("RemoteEve
 RemoteClient.Name = "Client"
 RemoteClient.Parent = REMOTES
 
--- Configuration (GetAndSet expected API: new(initialTable) -> object with :Get(key) and :Set(key,value))
+-- Configuration (GetAndSet expected API: new(initialTable) -> object with :Get(key) and :Set(key,value))  (basic encapsulation, same logic as Java)
 local Config = GetAndSet.new({
 	XP_PER_KILL = 50,
 	BASE_HP = 120,
@@ -340,5 +340,6 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
