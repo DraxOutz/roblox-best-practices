@@ -44,7 +44,7 @@ function NetworkManager:FireClient(name: string, player: Player, ...: any)
         ConsoleReporter:SendMessage("NetworkManager", "Evento não encontrado: " .. name, "Warn")
         return
     end
-    event:FireClient(player)
+    event:FireClient(player,...)
 end
 
 -- Disparar evento para todos os clientes
@@ -54,7 +54,8 @@ function NetworkManager:FireAllClients(name: string, ...: any)
         ConsoleReporter:SendMessage("NetworkManager", "Evento não encontrado: " .. name, "Warn")
         return
     end
-    event:FireAllClients()
+    event:FireAllClients(...)
 end
 
 return NetworkManager
+
