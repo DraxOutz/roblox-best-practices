@@ -1,5 +1,7 @@
 --!strict
 
+-- Script translated and commented by the translator
+
 --[[
 CORE GAME FRAMEWORK - SERVER-SIDE AUTHORITY
 
@@ -625,3 +627,4 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
