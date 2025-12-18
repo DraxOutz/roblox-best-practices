@@ -27,11 +27,12 @@ local HttpService = game:GetService("HttpService")
 --[[
 MODULE LOADING
 
-WHY check the Modules folder instead of assuming it exists:
-- Allows the game to self-heal if modules are accidentally deleted
-- Supports hot-reloading during development when modules are added/removed
-- Better error messages than "Instance not found" crashes
-- Enables conditional loading of modules based on game mode or environment
+
+WHY, instead of assuming it exists, check the Modules folder:
+- Better error messages than "Instance not found" crashes;
+- Supports hot reloading when modules are added or removed during development; 
+- Allows the game to repair itself if modules are inadvertently deleted;
+- Allows modules to be loaded conditionally depending on the environment or game mode.
 ]]
 
 local MODULES_FOLDER = ReplicatedStorage:FindFirstChild("Modules")
@@ -622,6 +623,7 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
 
