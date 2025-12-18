@@ -45,18 +45,18 @@ if not MODULES_FOLDER then
 end
 
 --[[
-TYPE DEFINITIONS - DESIGN DECISIONS
+Types and design decisions
 
-WHY define types at the top instead of inline:
-1. Self-documenting - anyone reading can understand data structures immediately
-2. Reusable across modules without circular dependencies
-3. Enables better Luau type inference for complex nested structures
-4. Centralized changes - update type definition once, affects entire codebase
+WHY defined types here at the top because:
+- It becomes easier to understand the structure of the data without having to hunt.
+- You can use it in other modules without conflicting.
+- Luau understands complex types better.
+- Changing something here updates it everywhere, effortlessly.
 
-CRITICAL DESIGN CHOICE: PlayerStats as separate table within PlayerData
-- Allows atomic updates to stats without replacing entire PlayerData
-- Enables temporary stat modifiers (buffs/debuffs) by tracking base vs current stats
-- Memory efficient: Only one reference to stats table vs duplicating for each operation
+Separating PlayerStats within PlayerData was on purpose:
+- You can update just the stats without changing the rest.
+- Facilitates temporary buffs/debuffs, maintaining the base and current value.
+- Saves memory, because you don't need to copy the table every time.
 ]]
 
 export type Player = Player
@@ -623,6 +623,7 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
 
