@@ -16,9 +16,8 @@ PERFORMANCE NOTES
 - Iteration modules avoid creating temporary tables for each update cycle.
 ]]
 
--- Services initialization
--- WHY not in separate module yet: Early-stage development prioritizes simplicity over over-engineering.
--- Once system complexity grows, services will move to a ServiceLocator module.
+-- STARTUP SERVICE
+-- As the complexity of the system increases, the services below will be in a single service module.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
@@ -26,9 +25,9 @@ local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 
 --[[
-DYNAMIC MODULES LOADING
+MODULE LOADING
 
-WHY dynamically check for Modules folder instead of assuming it exists:
+WHY check the Modules folder instead of assuming it exists:
 - Allows the game to self-heal if modules are accidentally deleted
 - Supports hot-reloading during development when modules are added/removed
 - Better error messages than "Instance not found" crashes
@@ -623,5 +622,6 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
