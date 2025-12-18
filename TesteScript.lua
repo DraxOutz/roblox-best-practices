@@ -3,21 +3,17 @@
 -- Script translated and commented by the translator
 
 --[[
-CORE GAME FRAMEWORK - SERVER-SIDE AUTHORITY
+MAIN GAME STRUCTURE - SERVER-SIDE AUTHORITY
 
-WHY THIS DESIGN:
-1. Authoritative server model prevents client-side cheating - critical calculations (damage, XP, stats)
-   are never trusted to the client, only results are sent
-2. Responsibility separation via modules enables independent updates (e.g., refactoring vehicles 
-   without touching abilities) and cleaner testing
-3. Encapsulated registry ensures data integrity - players cannot directly modify their own stats
-   without going through validation systems
+WHAT IS THIS FOR?
+- The server model is authoritative, it serves to avoid cheating on the client side such as critical calculations, for example: damage, XP, statistics. This data is never trusted if sent by the client.
+- Separation of responsibilities through modules allows independent updates.
+- Encapsulation logging just like Java ensures data integrity, players cannot directly modify their own statistics without going through validation systems like Guard Clause.
 
-PERFORMANCE NOTE:
-- We use typed tables with export type for development-time validation and clear documentation,
-  but with no runtime overhead in production
-- Debounce uses tick() instead of timers for better precision on laggy servers
-- Generic iteration module avoids creating temporary tables for each update cycle
+PERFORMANCE NOTES
+- We use typed tables with export type for development-time validation and clear documentation, but no runtime overhead in production.
+- Debounce uses tick() instead of Debounce uses tick() instead of timers because this way time is measured more accurately, even when the server is slow.
+- Iteration modules avoid creating temporary tables for each update cycle.
 ]]
 
 -- Services initialization
@@ -627,4 +623,5 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
