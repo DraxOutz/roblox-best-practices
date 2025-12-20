@@ -1,6 +1,3 @@
-Here's a humanized version of the documentation with a more natural, conversational tone:
-
-```lua
 --!strict
 
 --[[
@@ -559,4 +556,5 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
-```
+
+
