@@ -614,12 +614,13 @@ task.spawn(function()
 			count = count + 1
 		end)
 		
-		-- Diagnostic output - WHY include uptime: Correlates issues with server age
+		 -- Diagnostic output - WHY include uptime? Relate problems to the age of the server, being able to know whether errors happen after a while or immediately.
 		print(string.format("[AnimeGame] players=%d | uptime=%.0f", count, time()))
 		
 		task.wait(90)
 	end
 end)
+
 
 
 
