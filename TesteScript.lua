@@ -1,7 +1,5 @@
 --!strict
 
--- Script translated and commented by the translator
-
 --[[
 MAIN GAME STRUCTURE - SERVER-SIDE AUTHORITY
 
@@ -623,6 +621,7 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
 
