@@ -42,18 +42,18 @@ if not MODULES_FOLDER then
 end
 
 --[[
-Types and design decisions
+Why define the types at the beginning:
 
-WHY defined types here at the top because:
-- It becomes easier to understand the structure of the data without having to hunt.
-- You can use it in other modules without conflicting.
-- Luau understands complex types better.
-- Changing something here updates it everywhere, effortlessly.
+- It's easier to read. You can see how the data is organized right away, without having to search through the entire code.
+- Can be used anywhere. Play these definitions in other scripts so there will be no conflict.
+- Lauu prefers it this way. The engine type checker works best when the types are organized right from the start.
+- Changing later is easy. Adjust in one place and the rest of the code is already updated. It eliminates that pain of having to correct the same thing in a thousand places.
 
-Separating PlayerStats within PlayerData was on purpose:
-- You can update just the stats without changing the rest.
-- Facilitates temporary buffs/debuffs, maintaining the base and current value.
-- Saves memory, because you don't need to copy the table every time.
+And why separate PlayerStats from PlayerData:
+
+- Control only what you need. Do you want to change just the damage or the player's life? You can do it without touching the inventory or other stops.
+- Deals better with bonuses. This separation is perfect for buffs, debuffs, things like that. The base remains intact and you only change the temporary value.
+- It's lighter. You don't need to copy the player's entire table all the time, so it saves memory and causes fewer crashes.
 ]]
 
 export type Player = Player
@@ -620,6 +620,7 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
 
