@@ -38,7 +38,6 @@ if not MODULES_FOLDER then
 	MODULES_FOLDER = Instance.new("Folder")
 	MODULES_FOLDER.Name = "Modules"
 	MODULES_FOLDER.Parent = ReplicatedStorage
-	-- WHY log instead of warn/error: During initial setup, missing folder is expected
 	print("[Framework] Created Modules folder - initial setup")
 end
 
@@ -62,10 +61,10 @@ export type Timestamp = number
 
 export type PlayerStats = {
 	HP: number,
-	MaxHP: number,  -- WHY separate from HP: Allows regeneration systems and UI to show "120/150" format
+	MaxHP: number,  
 	Energy: number,
 	MaxEnergy: number,
-	Strength: number,  -- WHY flat stat instead of formula: Simpler balancing, predictable scaling
+	Strength: number,  
 	Speed: number,
 }
 
@@ -621,6 +620,7 @@ task.spawn(function()
 		task.wait(90)
 	end
 end)
+
 
 
 
