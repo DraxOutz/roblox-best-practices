@@ -5,6 +5,16 @@ local TweenService = game:GetService("TweenService")
 local TweenUtil = {}
 TweenUtil.__index = TweenUtil
 
+export type TweenUtilType = {
+	PlayTween: (frame: GuiObject?, properties: {[string]: any}, duration: number, easingStyle: Enum.EasingStyle?, easingDirection: Enum.EasingDirection?, onComplete: (() -> ())?) -> (),
+	FadeIn: (frame: GuiObject, duration: number, onComplete: (() -> ())?) -> (),
+	FadeOut: (frame: GuiObject, duration: number, onComplete: (() -> ())?) -> (),
+	TweenPosition: (frame: GuiObject, position: UDim2, duration: number, easingStyle: Enum.EasingStyle?, easingDirection: Enum.EasingDirection?, onComplete: (() -> ())?) -> (),
+	TweenSize: (frame: GuiObject, size: UDim2, duration: number, easingStyle: Enum.EasingStyle?, easingDirection: Enum.EasingDirection?, onComplete: (() -> ())?) -> (),
+	FadeText: (label: TextLabel | TextButton, fadeIn: boolean, duration: number, onComplete: (() -> ())?) -> (),
+	TypeText: (label: TextLabel | TextButton, fullText: string, delay: number?, onComplete: (() -> ())?) -> (),
+}
+
 local activeTweens: {[GuiObject]: Tween} = {}
 
 local function safePlayTween(
