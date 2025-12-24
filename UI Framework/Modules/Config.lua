@@ -1,32 +1,34 @@
 --!strict
 -- Config.lua
+-- Configurações gerais para UI, Texto, Input e Debug no cliente
+-- Preparado para uso em sistemas complexos, fácil de manter e entender por outro dev
 
 -- Tipos para cada grupo de configuração
 type UIConfig = {
-	DefaultFadeTime: number,
-	DefaultTweenTime: number,
-	DefaultTweenStyle: Enum.EasingStyle,
-	DefaultTweenDirection: Enum.EasingDirection,
-	OverlayFadeTime: number,
-	TooltipDelay: number,
-	ModalBackgroundTransparency: number,
-	MaxOpenFrames: number,
+	DefaultFadeTime: number,               -- tempo padrão para fade in/out de telas
+	DefaultTweenTime: number,              -- tempo padrão para qualquer tween
+	DefaultTweenStyle: Enum.EasingStyle,  -- estilo padrão de tween
+	DefaultTweenDirection: Enum.EasingDirection, -- direção padrão de tween
+	OverlayFadeTime: number,               -- tempo para overlays (tooltips, modals)
+	TooltipDelay: number,                  -- atraso antes de mostrar tooltips
+	ModalBackgroundTransparency: number,   -- transparência padrão de modals
+	MaxOpenFrames: number,                 -- número máximo de telas primárias abertas
 }
 
 type TextConfig = {
-	DefaultTypingSpeed: number,
-	FadeTime: number,
+	DefaultTypingSpeed: number,  -- segundos por letra para efeito de digitação
+	FadeTime: number,            -- tempo de fade de texto
 }
 
 type InputConfig = {
-	EnableKeyboardShortcuts: boolean,
-	DefaultClickDelay: number,
+	EnableKeyboardShortcuts: boolean, -- ativa atalhos de teclado padrão
+	DefaultClickDelay: number,        -- tempo mínimo entre cliques em botões
 }
 
 type DebugConfig = {
-	ShowUIBorders: boolean,
-	EnableLogs: boolean,
-	VerboseTweens: boolean,
+	ShowUIBorders: boolean,  -- mostra bordas das UIs para desenvolvimento
+	EnableLogs: boolean,     -- ativa logs no console
+	VerboseTweens: boolean,  -- logs detalhados de tweens
 }
 
 export type ConfigType = {
@@ -63,11 +65,16 @@ Config.Input = {
 	DefaultClickDelay = 0.2,
 }
 
--- Debug / Dev
+-- Debug / Desenvolvimento
 Config.Debug = {
 	ShowUIBorders = false,
 	EnableLogs = true,
 	VerboseTweens = false,
 }
+
+-- Exemplo de uso:
+-- local Config = require(path.to.Config)
+-- print(Config.UI.DefaultFadeTime)
+-- if Config.Debug.EnableLogs then print("Logs ativos") end
 
 return Config
