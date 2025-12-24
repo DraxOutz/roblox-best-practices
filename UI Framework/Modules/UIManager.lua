@@ -1,7 +1,6 @@
 --!strict
 -- UIManager.lua
 -- Gerencia telas primárias (exclusive) e overlays (não exclusive)
--- Modularizado, tipado, pronto para manutenção e trabalho em equipe.
 
 local UIManager = {}
 UIManager.__index = UIManager
@@ -94,3 +93,4 @@ end
 -- UIManager.CloseCurrent()
 
 return UIManager
+
