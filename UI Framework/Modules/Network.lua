@@ -1,15 +1,15 @@
 --!strict
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Gerencia remotes do lado cliente
 local Network = {}
 Network.__index = Network
 
-export type Network = {
-	Remotes: {[string]: RemoteEvent},
-	Fire: (self: Network, name: string, ...any) -> (),
-	Listen: (self: Network, name: string, callback: (...any) -> ()) -> (),
-}
+export type NetworkType = typeof(Network.new())
 
-Network.Remotes = {}
+function Network.new(remotes: {[string]: RemoteEvent}): NetworkType
+	local self = setmetatable({}, Network)
+	self.Remotes = remotes or {}
+	return self
+end
 
 function Network:Fire(name: string, ...: any)
 	local remote = self.Remotes[name]
@@ -21,7 +21,8 @@ end
 function Network:Listen(name: string, callback: (...any) -> ())
 	local remote = self.Remotes[name]
 	if remote and remote:IsA("RemoteEvent") then
-		remote.OnClientEvent:Connect(callback)
+		local conn = remote.OnClientEvent:Connect(callback)
+		return conn
 	end
 end
 
