@@ -1,8 +1,6 @@
 --!strict
 -- Maid.lua
 -- Gerencia cleanup de tasks: eventos, tweens e Instâncias
--- Nível S: modular, tipado, autoexplicativo, pronto para outro dev assumir
-
 local Maid = {}
 Maid.__index = Maid
 
@@ -55,3 +53,4 @@ end
 -- maid:DoCleaning() -- desconecta e limpa tudo
 
 return Maid
+
