@@ -1,6 +1,5 @@
 --!strict
-
-
+-- Gerencia cleanup de tasks (events, tweens, instances)
 local Maid = {}
 Maid.__index = Maid
 
@@ -10,20 +9,17 @@ export type Maid = {
 	DoCleaning: (self: Maid) -> (),
 }
 
--- Cria uma nova instância de Maid
 function Maid.new(): Maid
-	return setmetatable({
-		Tasks = {}
-	}, Maid)
+	return setmetatable({ Tasks = {} }, Maid)
 end
 
--- Adiciona uma tarefa para o Maid gerenciar
-function Maid:Give(task: any): ()
-	table.insert(self.Tasks, task)
+function Maid:Give(task: any)
+	if task then
+		table.insert(self.Tasks, task)
+	end
 end
 
--- Limpa todas as tarefas gerenciadas pelo Maid
-function Maid:DoCleaning(): ()
+function Maid:DoCleaning()
 	for _, task in ipairs(self.Tasks) do
 		if typeof(task) == "RBXScriptConnection" then
 			task:Disconnect()
