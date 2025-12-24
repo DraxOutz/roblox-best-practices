@@ -1,33 +1,71 @@
 --!strict
-local Config = {}
+-- Config.lua
+
+-- Tipos para cada grupo de configuraÃ§Ã£o
+type UIConfig = {
+	DefaultFadeTime: number,
+	DefaultTweenTime: number,
+	DefaultTweenStyle: Enum.EasingStyle,
+	DefaultTweenDirection: Enum.EasingDirection,
+	OverlayFadeTime: number,
+	TooltipDelay: number,
+	ModalBackgroundTransparency: number,
+	MaxOpenFrames: number,
+}
+
+type TextConfig = {
+	DefaultTypingSpeed: number,
+	FadeTime: number,
+}
+
+type InputConfig = {
+	EnableKeyboardShortcuts: boolean,
+	DefaultClickDelay: number,
+}
+
+type DebugConfig = {
+	ShowUIBorders: boolean,
+	EnableLogs: boolean,
+	VerboseTweens: boolean,
+}
+
+export type ConfigType = {
+	UI: UIConfig,
+	Text: TextConfig,
+	Input: InputConfig,
+	Debug: DebugConfig,
+}
+
+-- DefiniÃ§Ã£o do mÃ³dulo
+local Config: ConfigType = {}
 
 -- UI geral
 Config.UI = {
-	DefaultFadeTime = 0.5,                   -- tempo padrão para fade in/out
-	DefaultTweenTime = 0.5,                  -- tempo padrão para qualquer tween
+	DefaultFadeTime = 0.5,
+	DefaultTweenTime = 0.5,
 	DefaultTweenStyle = Enum.EasingStyle.Quad,
 	DefaultTweenDirection = Enum.EasingDirection.Out,
-	OverlayFadeTime = 0.3,                   -- tempo para overlays
-	TooltipDelay = 0.7,                      -- tempo até mostrar tooltips
-	ModalBackgroundTransparency = 0.5,       -- transparência padrão de fundo de modal
-	MaxOpenFrames = 1,                        -- apenas uma tela principal aberta por vez
+	OverlayFadeTime = 0.3,
+	TooltipDelay = 0.7,
+	ModalBackgroundTransparency = 0.5,
+	MaxOpenFrames = 1,
 }
 
 -- Texto
 Config.Text = {
-	DefaultTypingSpeed = 0.05,               -- segundos por letra para efeito de digitação
-	FadeTime = 0.3,                           -- tempo de fade de texto
+	DefaultTypingSpeed = 0.05,
+	FadeTime = 0.3,
 }
 
 -- Input / Controle do jogador
 Config.Input = {
 	EnableKeyboardShortcuts = true,
-	DefaultClickDelay = 0.2,                 -- delay padrão entre cliques em botões
+	DefaultClickDelay = 0.2,
 }
 
--- Debug / Dev (visível apenas no cliente)
+-- Debug / Dev
 Config.Debug = {
-	ShowUIBorders = false,                   -- contorno das UIs para desenvolvimento
+	ShowUIBorders = false,
 	EnableLogs = true,
 	VerboseTweens = false,
 }
