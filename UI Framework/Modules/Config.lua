@@ -1,7 +1,6 @@
 --!strict
 -- Config.lua
 -- Configurações gerais para UI, Texto, Input e Debug no cliente
--- Preparado para uso em sistemas complexos, fácil de manter e entender por outro dev
 
 -- Tipos para cada grupo de configuração
 type UIConfig = {
@@ -78,3 +77,4 @@ Config.Debug = {
 -- if Config.Debug.EnableLogs then print("Logs ativos") end
 
 return Config
+
