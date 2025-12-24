@@ -3,6 +3,15 @@
 local UIManager = {}
 UIManager.__index = UIManager
 
+export type UIManagerType = {
+	Open: (frame: GuiObject) -> (),
+	Close: (frame: GuiObject) -> (),
+	CloseCurrent: () -> (),
+	GetCurrent: () -> GuiObject?,
+	OpenOverlay: (frame: GuiObject) -> (),
+	CloseOverlay: (frame: GuiObject) -> (),
+}
+
 local CurrentFrame: GuiObject?
 
 function UIManager.Open(frame: GuiObject)
