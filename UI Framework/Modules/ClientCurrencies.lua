@@ -68,3 +68,4 @@ function ClientCurrencies:Reset()
 end
 
 return ClientCurrencies
+
