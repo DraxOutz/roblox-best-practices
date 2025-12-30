@@ -1,36 +1,40 @@
 --!strict
 -- Maid.lua
--- Gerencia cleanup de tasks: eventos, tweens e Instâncias
+-- @module Maid
+-- @desc Gerencia cleanup de tasks: eventos, tweens e Instâncias de forma segura e previsível
+
 local Maid = {}
 Maid.__index = Maid
 
 -- Tipagem
+-- @type Maid
+-- @field Tasks lista de tarefas gerenciadas
+-- @field Give adiciona uma task ao Maid
+-- @field DoCleaning limpa todas as tasks gerenciadas
 export type Maid = {
-	Tasks: {any},                               -- lista de tarefas gerenciadas
-	Give: (self: Maid, task: any) -> (),        -- adiciona uma task
-	DoCleaning: (self: Maid) -> (),            -- limpa todas as tasks
+	Tasks: {any},
+	Give: (self: Maid, task: any) -> (),
+	DoCleaning: (self: Maid) -> (),
 }
 
--- Cria uma nova instância de Maid
--- @return uma instância limpa de Maid
+-- @desc Cria uma nova instância de Maid
+-- @return nova instância de Maid
 function Maid.new(): Maid
 	return setmetatable({ Tasks = {} }, Maid)
 end
 
--- Adiciona uma task para o Maid gerenciar
--- Task pode ser:
---  - RBXScriptConnection (eventos)
---  - Instância do Roblox (GUI, objetos do jogo)
---  - Qualquer objeto que precise de cleanup manual
--- @param task qualquer objeto gerenciável
+-- @desc Adiciona uma task para o Maid gerenciar
+-- @param task task gerenciável (RBXScriptConnection, Instance, ou outro objeto que precise de cleanup)
 function Maid:Give(task: any)
-	if task ~= nil then
-		table.insert(self.Tasks, task)
+	if task == nil then
+		warn("[Maid] Tentativa de adicionar task inválida")
+		return
 	end
+	table.insert(self.Tasks, task)
 end
 
--- Limpa todas as tasks gerenciadas pelo Maid
--- Desconecta eventos, destrói instâncias e reseta a lista
+-- @desc Limpa todas as tasks gerenciadas
+--       Desconecta eventos, destrói instâncias e reseta a lista
 function Maid:DoCleaning()
 	for _, task in ipairs(self.Tasks) do
 		local taskType = typeof(task)
@@ -53,4 +57,3 @@ end
 -- maid:DoCleaning() -- desconecta e limpa tudo
 
 return Maid
-
