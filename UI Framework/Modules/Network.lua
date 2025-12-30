@@ -1,17 +1,23 @@
 --!strict
 -- Network.lua
--- Gerencia remotes do lado cliente (Network Layer)
--- Responsável por enviar e receber RemoteEvents de forma modular e segura
+-- @module Network
+-- @desc Gerencia RemoteEvents do lado cliente de forma modular e segura
+--       Permite enviar e receber eventos com verificação de tipos e proteção contra erros
 
 local Network = {}
 Network.__index = Network
 
 -- Tipos
+-- @type RemoteMap
+-- @desc Mapeamento de nomes de RemoteEvents
 export type RemoteMap = { [string]: RemoteEvent }
+
+-- @type NetworkType
+-- @desc Instância da Network
 export type NetworkType = typeof(Network.new({}))
 
--- Cria uma nova instância da Network
--- @param remotes: tabela de RemoteEvents existentes no cliente
+-- @desc Cria uma nova instância de Network
+-- @param remotes tabela de RemoteEvents existentes no cliente
 -- @return instância da Network
 function Network.new(remotes: RemoteMap?): NetworkType
 	local self = setmetatable({}, Network)
@@ -19,28 +25,28 @@ function Network.new(remotes: RemoteMap?): NetworkType
 	return self
 end
 
--- Dispara um RemoteEvent para o server
--- @param name: nome do remote
--- @param ...: argumentos para enviar
+-- @desc Dispara um RemoteEvent para o servidor
+-- @param name nome do RemoteEvent
+-- @param ... argumentos a serem enviados
 function Network:Fire(name: string, ...: any)
 	local remote = self.Remotes[name]
 	if remote and remote:IsA("RemoteEvent") then
 		remote:FireServer(...)
 	else
-		warn(("Network: Remote '%s' não encontrado ou inválido"):format(name))
+		warn(("[Network] Remote '%s' não encontrado ou inválido"):format(name))
 	end
 end
 
--- Conecta a um RemoteEvent do server
--- @param name: nome do remote
--- @param callback: função que será chamada ao receber o evento
+-- @desc Conecta a um RemoteEvent do servidor
+-- @param name nome do RemoteEvent
+-- @param callback função a ser chamada ao receber o evento
 -- @return RBXScriptConnection? conexão para permitir desconexão futura
 function Network:Listen(name: string, callback: (...any) -> ()): RBXScriptConnection?
 	local remote = self.Remotes[name]
 	if remote and remote:IsA("RemoteEvent") then
 		return remote.OnClientEvent:Connect(callback)
 	else
-		warn(("Network: Remote '%s' não encontrado ou inválido"):format(name))
+		warn(("[Network] Remote '%s' não encontrado ou inválido"):format(name))
 		return nil
 	end
 end
