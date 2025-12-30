@@ -1,16 +1,19 @@
 --!strict
--- UIState.lua
--- Gerencia propriedades e eventos de elementos UI de forma modular e segura.
--- Usa Maid para cleanup automático de conexões e instâncias.
+-- @module UIState
+-- @desc Gerencia propriedades e eventos de elementos UI de forma modular, segura e totalmente controlada.
+--       Usa Maid para cleanup automático de conexões e instâncias.
+--       Arquitetura pensada para máxima previsibilidade e integração com outros módulos.
 
 local Maid = require(script.Parent:WaitForChild("Maid"))
 
 local UIState = {}
 UIState.__index = UIState
 
--- Tipagem exportada
+-- @type UIStateType
+-- @desc Interface do UIState
 export type UIStateType = {
 	maid: Maid,
+
 	SetProperty: (self: UIStateType, element: GuiObject, property: string, value: any) -> (),
 	SetText: (self: UIStateType, element: TextLabel | TextBox, text: string) -> (),
 	SetColor: (self: UIStateType, element: GuiObject, color: Color3) -> (),
@@ -22,81 +25,88 @@ export type UIStateType = {
 	Cleanup: (self: UIStateType) -> (),
 }
 
--- Cria uma nova instância de UIState
+-- @desc Cria uma nova instância de UIState
+-- @return UIStateType
 local function new(): UIStateType
 	local self: UIStateType = setmetatable({}, UIState)
 	self.maid = Maid.new()
 	return self
 end
 
--- Define qualquer propriedade de um elemento UI
+-- @desc Define qualquer propriedade de um elemento UI
+-- @param element GuiObject: elemento alvo
+-- @param property string: nome da propriedade
+-- @param value any: valor a ser atribuído
 function UIState:SetProperty(element: GuiObject, property: string, value: any)
-	if not element then
-		warn("UIState:SetProperty: element inválido")
-		return
-	end
-
+	assert(element and element:IsA("GuiObject"), "[UIState] SetProperty: element inválido")
 	if element[property] == nil then
-		warn(("UIState:SetProperty: propriedade '%s' inválida para %s"):format(property, element:GetFullName()))
-		return
+		error(("[UIState] SetProperty: propriedade '%s' inválida para %s"):format(property, element:GetFullName()))
 	end
-
 	element[property] = value
 end
 
--- Define o texto de um TextLabel ou TextBox
+-- @desc Define o texto de um TextLabel ou TextBox
+-- @param element TextLabel | TextBox: elemento alvo
+-- @param text string: texto a ser aplicado
 function UIState:SetText(element: TextLabel | TextBox, text: string)
 	self:SetProperty(element, "Text", text)
 end
 
--- Define a cor de fundo de um elemento UI
+-- @desc Define a cor de fundo de um elemento UI
+-- @param element GuiObject
+-- @param color Color3
 function UIState:SetColor(element: GuiObject, color: Color3)
 	self:SetProperty(element, "BackgroundColor3", color)
 end
 
--- Define o tamanho de um elemento UI
+-- @desc Define o tamanho de um elemento UI
+-- @param element GuiObject
+-- @param size UDim2
 function UIState:SetSize(element: GuiObject, size: UDim2)
 	self:SetProperty(element, "Size", size)
 end
 
--- Define a posição de um elemento UI
+-- @desc Define a posição de um elemento UI
+-- @param element GuiObject
+-- @param position UDim2
 function UIState:SetPosition(element: GuiObject, position: UDim2)
 	self:SetProperty(element, "Position", position)
 end
 
--- Define a visibilidade de um elemento UI
+-- @desc Define a visibilidade de um elemento UI
+-- @param element GuiObject
+-- @param visible boolean
 function UIState:SetVisible(element: GuiObject, visible: boolean)
 	self:SetProperty(element, "Visible", visible)
 end
 
--- Define a transparência de fundo de um elemento UI
+-- @desc Define a transparência de fundo de um elemento UI
+-- @param element GuiObject
+-- @param transparency number
 function UIState:SetTransparency(element: GuiObject, transparency: number)
 	self:SetProperty(element, "BackgroundTransparency", transparency)
 end
 
--- Conecta eventos do elemento UI e gerencia com Maid
+-- @desc Conecta eventos do elemento UI e gerencia com Maid
+-- @param element GuiObject
+-- @param eventName string: nome do evento (ex: "MouseButton1Click")
+-- @param callback (...any) -> (): função a ser chamada
 function UIState:ConnectEvent(element: GuiObject, eventName: string, callback: (...any) -> ())
-	if not element then
-		warn("UIState:ConnectEvent: element inválido")
-		return
-	end
-
+	assert(element and element:IsA("GuiObject"), "[UIState] ConnectEvent: element inválido")
 	local event = element[eventName]
 	if not event or typeof(event) ~= "RBXScriptSignal" then
-		warn(("UIState:ConnectEvent: evento '%s' inválido para %s"):format(eventName, element:GetFullName()))
-		return
+		error(("[UIState] ConnectEvent: evento '%s' inválido para %s"):format(eventName, element:GetFullName()))
 	end
-
 	local conn = event:Connect(callback)
 	self.maid:Give(conn)
 end
 
--- Limpa todas conexões e instâncias gerenciadas
+-- @desc Limpa todas conexões e instâncias gerenciadas
 function UIState:Cleanup()
 	self.maid:DoCleaning()
 end
 
--- Exporta a função de criação
+-- @desc Exporta a função de criação
 UIState.new = new
 
 return UIState
