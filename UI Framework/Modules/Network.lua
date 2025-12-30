@@ -1,8 +1,9 @@
 --!strict
 -- Network.lua
 -- @module Network
--- @desc Suporte completo a RemoteEvent, RemoteFunction, BindableEvent e BindableFunction v1.2
---       Com validação de argumentos, proteção real, gerenciamento de listeners e debug opcional.
+-- @desc Suporte completo a RemoteEvent, RemoteFunction, BindableEvent e BindableFunction
+--       Com validação automática de argumentos, proteção real, gerenciamento de listeners e debug opcional.
+-- v1.2
 
 local Network = {}
 Network.__index = Network
@@ -19,21 +20,22 @@ function Network.new(remotes: RemoteMap?, debugMode: boolean?): NetworkType
 	local self = setmetatable({}, Network)
 	self.Remotes = remotes or {}
 	self.Listeners = {} :: ListenerMap
+	self.Contracts = {} :: { [string]: {string} } -- tabela de tipos esperados por remote
 	self.Debug = debugMode or false
 	return self
 end
 
--- Valida argumentos com tipos esperados
+-- Função interna: valida argumentos automaticamente
 local function validateArgs(expected: {string}, actual: {any})
 	for i, t in expected do
 		if typeof(actual[i]) ~= t then
-			return false, ("Expected argument %d to be %s, got %s"):format(i, t, typeof(actual[i]))
+			return false, ("[Network] Argumento %d esperado %s, mas recebeu %s"):format(i, t, typeof(actual[i]))
 		end
 	end
 	return true
 end
 
--- Função interna de disparo (Fire/Invoke) com proteção
+-- Função interna: chamada segura
 local function safeCall(func: Callback, ...)
 	local success, result = pcall(func, ...)
 	if not success then
@@ -43,7 +45,7 @@ local function safeCall(func: Callback, ...)
 	return result
 end
 
--- Fire/Invoke qualquer Remote ou Bindable
+-- Fire/Invoke qualquer Remote ou Bindable com validação automática
 function Network:Fire(name: string, ...: any): any
 	local remote = self.Remotes[name]
 	if not remote then
@@ -51,14 +53,35 @@ function Network:Fire(name: string, ...: any): any
 		return
 	end
 
+	-- validação automática
+	if self.Contracts[name] then
+		local valid, err = validateArgs(self.Contracts[name], {...})
+		if not valid then
+			warn(err)
+			return
+		end
+	end
+
 	if remote:IsA("RemoteEvent") or remote:IsA("BindableEvent") then
-		safeCall(function() remote:FireServer and remote:FireServer(...) or remote:Fire(...) end)
+		safeCall(function()
+			if remote.FireServer then
+				remote:FireServer(...)
+			else
+				remote:Fire(...)
+			end
+		end)
 		if self.Debug then
 			print(("[Network] Disparado Event '%s'"):format(name))
 		end
 	elseif remote:IsA("RemoteFunction") or remote:IsA("BindableFunction") then
 		local result
-		result = safeCall(function() return remote:InvokeServer and remote:InvokeServer(...) or remote:Invoke(...) end)
+		result = safeCall(function()
+			if remote.InvokeServer then
+				return remote:InvokeServer(...)
+			else
+				return remote:Invoke(...)
+			end
+		end)
 		if self.Debug then
 			print(("[Network] Invocado Function '%s', resultado: %s"):format(name, tostring(result)))
 		end
@@ -68,7 +91,7 @@ function Network:Fire(name: string, ...: any): any
 	end
 end
 
--- Listen: conecta callbacks a Event/Function
+-- Listen com validação automática
 function Network:Listen(name: string, callback: Callback)
 	local remote = self.Remotes[name]
 	if not remote then
@@ -76,23 +99,39 @@ function Network:Listen(name: string, callback: Callback)
 		return nil
 	end
 
+	local wrapper = function(...)
+		-- validação automática
+		if self.Contracts[name] then
+			local valid, err = validateArgs(self.Contracts[name], {...})
+			if not valid then
+				warn(err)
+				return
+			end
+		end
+		return safeCall(callback, ...)
+	end
+
 	if remote:IsA("RemoteEvent") or remote:IsA("BindableEvent") then
-		local conn = remote.Event:Connect(function(...)
-			safeCall(callback, ...)
-		end)
+		local conn = remote.Event:Connect(wrapper)
 		self.Listeners[name] = self.Listeners[name] or {}
 		table.insert(self.Listeners[name], conn)
 		return conn
 	elseif remote:IsA("RemoteFunction") or remote:IsA("BindableFunction") then
-		remote.OnClientInvoke = function(...)
-			return safeCall(callback, ...)
-		end
+		remote.OnClientInvoke = wrapper
 	else
 		warn(("[Network] Remote/Bindable '%s' inválido!"):format(name))
 	end
 end
 
--- Desconecta todos os listeners de um remote específico
+-- Registrar tipos esperados para cada remote (contrato)
+function Network:SetContract(name: string, types: {string})
+	self.Contracts[name] = types
+	if self.Debug then
+		print(("[Network] Contrato definido para '%s': %s"):format(name, table.concat(types, ", ")))
+	end
+end
+
+-- Gerenciamento de listeners
 function Network:Disconnect(name: string)
 	if self.Listeners[name] then
 		for _, conn in self.Listeners[name] do
@@ -105,14 +144,13 @@ function Network:Disconnect(name: string)
 	end
 end
 
--- Desconecta todos os listeners de todos os remotes
 function Network:DisconnectAll()
 	for name, _ in self.Listeners do
 		self:Disconnect(name)
 	end
 end
 
--- Registro dinâmico de remote/bindable
+-- Registrar / remover remote/bindable
 function Network:Register(name: string, remote: RemoteEvent | RemoteFunction | BindableEvent | BindableFunction)
 	self.Remotes[name] = remote
 	if self.Debug then
@@ -120,7 +158,6 @@ function Network:Register(name: string, remote: RemoteEvent | RemoteFunction | B
 	end
 end
 
--- Remover remote/bindable
 function Network:Unregister(name: string)
 	self:Disconnect(name)
 	self.Remotes[name] = nil
