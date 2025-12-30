@@ -1,68 +1,118 @@
 --!strict
-local Guard = require(script.Parent:WaitForChild("GuardClause"))
-local ConsoleReporter = require(script.Parent:WaitForChild("ConsoleReporter"))
+-- ConfigManager.lua
+-- Gerencia configs globais e por player de forma segura, modular e eficiente
+-- Inclui eventos onChange, tipagem forte e integração Maid
+
+local Maid = require(script.Parent:WaitForChild("Maid"))
 
 local ConfigManager = {}
 ConfigManager.__index = ConfigManager
 
+-- Tipagem
 export type ConfigTable = { [string]: any }
+export type ConfigChangeCallback = (key: string, value: any) -> ()
 
-local globalConfig: ConfigTable = {}             -- configs globais
-local playerConfig: { [number]: ConfigTable } = {} -- configs por player (Player.UserId como key)
+-- Eventos onChange
+local GlobalChangeEvent = Instance.new("BindableEvent") -- dispara quando uma config global muda
+local PlayerChangeEvents: {[number]: BindableEvent} = {} -- dispara quando config de um player muda
 
-function ConfigManager.new()
+-- Locks simples para concorrência
+local GlobalLock = false
+local PlayerLocks: {[number]: boolean} = {}
+
+-- Configs armazenadas
+local globalConfig: ConfigTable = {}
+local playerConfig: {[number]: ConfigTable} = {}
+
+-- Cria uma nova instância
+function ConfigManager.new(): ConfigManager
 	local self = setmetatable({}, ConfigManager)
+	self.maid = Maid.new()
 	return self
 end
 
--- Set global config
-function ConfigManager:SetGlobal(key: string, value: any)
-	if not Guard:IsValid(key, "string") then
-		ConsoleReporter:SendMessage("ConfigManager", "[SetGlobal] Key inv�lida", "Warn")
-		return
-	end
-	globalConfig[key] = value
+-- Função interna para garantir lock
+local function withGlobalLock(fn: () -> ())
+	while GlobalLock do task.wait() end
+	GlobalLock = true
+	fn()
+	GlobalLock = false
 end
 
--- Get global config
+local function withPlayerLock(userId: number, fn: () -> ())
+	PlayerLocks[userId] = PlayerLocks[userId] or false
+	while PlayerLocks[userId] do task.wait() end
+	PlayerLocks[userId] = true
+	fn()
+	PlayerLocks[userId] = false
+end
+
+--[[ Global Configs ]]--
+
+function ConfigManager:SetGlobal(key: string, value: any)
+	assert(type(key) == "string" and key ~= "", "[ConfigManager] SetGlobal: Key inválida")
+	withGlobalLock(function()
+		globalConfig[key] = value
+		GlobalChangeEvent:Fire(key, value)
+	end)
+end
+
 function ConfigManager:GetGlobal(key: string): any
 	return globalConfig[key]
 end
 
--- Set config para player
-function ConfigManager:SetPlayer(player: Player, key: string, value: any)
-	if not Guard:IsValid(player, "Instance") or not player:IsA("Player") then
-		ConsoleReporter:SendMessage("ConfigManager", "[SetPlayer] Player inv�lido", "Warn")
-		return
-	end
-	if not Guard:IsValid(key, "string") then
-		ConsoleReporter:SendMessage("ConfigManager", "[SetPlayer] Key inv�lida", "Warn")
-		return
-	end
-	if not playerConfig[player.UserId] then
-		playerConfig[player.UserId] = {}
-	end
-	playerConfig[player.UserId][key] = value
+function ConfigManager:ConnectGlobalChange(callback: ConfigChangeCallback)
+	assert(type(callback) == "function", "[ConfigManager] ConnectGlobalChange: callback inválido")
+	return GlobalChangeEvent.Event:Connect(callback)
 end
 
--- Get config de player
-function ConfigManager:GetPlayer(player: Player, key: string): any
-	if not playerConfig[player.UserId] then return nil end
-	return playerConfig[player.UserId][key]
-end
-
--- Limpa todas configs de um player
-function ConfigManager:ClearPlayer(player: Player)
-	playerConfig[player.UserId] = nil
-end
-
--- Get total de configs globais
 function ConfigManager:GetGlobalCount(): number
 	local count = 0
 	for _ in globalConfig do
 		count += 1
 	end
 	return count
+end
+
+--[[ Player Configs ]]--
+
+function ConfigManager:SetPlayer(player: Player, key: string, value: any)
+	assert(player and player:IsA("Player"), "[ConfigManager] SetPlayer: Player inválido")
+	assert(type(key) == "string" and key ~= "", "[ConfigManager] SetPlayer: Key inválida")
+
+	withPlayerLock(player.UserId, function()
+		playerConfig[player.UserId] = playerConfig[player.UserId] or {}
+		playerConfig[player.UserId][key] = value
+
+		if not PlayerChangeEvents[player.UserId] then
+			PlayerChangeEvents[player.UserId] = Instance.new("BindableEvent")
+		end
+		PlayerChangeEvents[player.UserId]:Fire(key, value)
+	end)
+end
+
+function ConfigManager:GetPlayer(player: Player, key: string): any
+	if not playerConfig[player.UserId] then return nil end
+	return playerConfig[player.UserId][key]
+end
+
+function ConfigManager:ConnectPlayerChange(player: Player, callback: ConfigChangeCallback)
+	assert(player and player:IsA("Player"), "[ConfigManager] ConnectPlayerChange: Player inválido")
+	assert(type(callback) == "function", "[ConfigManager] ConnectPlayerChange: callback inválido")
+
+	if not PlayerChangeEvents[player.UserId] then
+		PlayerChangeEvents[player.UserId] = Instance.new("BindableEvent")
+	end
+
+	return PlayerChangeEvents[player.UserId].Event:Connect(callback)
+end
+
+function ConfigManager:ClearPlayer(player: Player)
+	playerConfig[player.UserId] = nil
+	if PlayerChangeEvents[player.UserId] then
+		PlayerChangeEvents[player.UserId]:Destroy()
+		PlayerChangeEvents[player.UserId] = nil
+	end
 end
 
 return ConfigManager
