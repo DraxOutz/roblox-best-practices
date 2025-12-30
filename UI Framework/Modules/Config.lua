@@ -1,35 +1,61 @@
 --!strict
 -- Config.lua
--- Configurações gerais para UI, Texto, Input e Debug no cliente
+-- @module Config
+-- @desc Configurações gerais do cliente: UI, Texto, Input e Debug
 
--- Tipos para cada grupo de configuração
+-- Tipos de configuração
+
+-- @type UIConfig
+-- @field DefaultFadeTime tempo padrão para fade in/out de telas
+-- @field DefaultTweenTime tempo padrão para qualquer tween
+-- @field DefaultTweenStyle estilo padrão de tween
+-- @field DefaultTweenDirection direção padrão de tween
+-- @field OverlayFadeTime tempo de fade para overlays (tooltips, modals)
+-- @field TooltipDelay atraso antes de mostrar tooltips
+-- @field ModalBackgroundTransparency transparência padrão de modals
+-- @field MaxOpenFrames número máximo de telas primárias abertas
 type UIConfig = {
-	DefaultFadeTime: number,               -- tempo padrão para fade in/out de telas
-	DefaultTweenTime: number,              -- tempo padrão para qualquer tween
-	DefaultTweenStyle: Enum.EasingStyle,  -- estilo padrão de tween
-	DefaultTweenDirection: Enum.EasingDirection, -- direção padrão de tween
-	OverlayFadeTime: number,               -- tempo para overlays (tooltips, modals)
-	TooltipDelay: number,                  -- atraso antes de mostrar tooltips
-	ModalBackgroundTransparency: number,   -- transparência padrão de modals
-	MaxOpenFrames: number,                 -- número máximo de telas primárias abertas
+	DefaultFadeTime: number,
+	DefaultTweenTime: number,
+	DefaultTweenStyle: Enum.EasingStyle,
+	DefaultTweenDirection: Enum.EasingDirection,
+	OverlayFadeTime: number,
+	TooltipDelay: number,
+	ModalBackgroundTransparency: number,
+	MaxOpenFrames: number,
 }
 
+-- @type TextConfig
+-- @field DefaultTypingSpeed segundos por letra para efeito de digitação
+-- @field FadeTime tempo de fade de texto
 type TextConfig = {
-	DefaultTypingSpeed: number,  -- segundos por letra para efeito de digitação
-	FadeTime: number,            -- tempo de fade de texto
+	DefaultTypingSpeed: number,
+	FadeTime: number,
 }
 
+-- @type InputConfig
+-- @field EnableKeyboardShortcuts ativa atalhos de teclado padrão
+-- @field DefaultClickDelay tempo mínimo entre cliques em botões
 type InputConfig = {
-	EnableKeyboardShortcuts: boolean, -- ativa atalhos de teclado padrão
-	DefaultClickDelay: number,        -- tempo mínimo entre cliques em botões
+	EnableKeyboardShortcuts: boolean,
+	DefaultClickDelay: number,
 }
 
+-- @type DebugConfig
+-- @field ShowUIBorders mostra bordas das UIs para desenvolvimento
+-- @field EnableLogs ativa logs no console
+-- @field VerboseTweens logs detalhados de tweens
 type DebugConfig = {
-	ShowUIBorders: boolean,  -- mostra bordas das UIs para desenvolvimento
-	EnableLogs: boolean,     -- ativa logs no console
-	VerboseTweens: boolean,  -- logs detalhados de tweens
+	ShowUIBorders: boolean,
+	EnableLogs: boolean,
+	VerboseTweens: boolean,
 }
 
+-- @type ConfigType
+-- @field UI configurações de UI
+-- @field Text configurações de texto
+-- @field Input configurações de input
+-- @field Debug configurações de debug
 export type ConfigType = {
 	UI: UIConfig,
 	Text: TextConfig,
@@ -37,10 +63,10 @@ export type ConfigType = {
 	Debug: DebugConfig,
 }
 
--- Definição do módulo
+-- Criação do módulo
 local Config: ConfigType = {}
 
--- UI geral
+-- UI
 Config.UI = {
 	DefaultFadeTime = 0.5,
 	DefaultTweenTime = 0.5,
@@ -58,23 +84,17 @@ Config.Text = {
 	FadeTime = 0.3,
 }
 
--- Input / Controle do jogador
+-- Input
 Config.Input = {
 	EnableKeyboardShortcuts = true,
 	DefaultClickDelay = 0.2,
 }
 
--- Debug / Desenvolvimento
+-- Debug
 Config.Debug = {
 	ShowUIBorders = false,
 	EnableLogs = true,
 	VerboseTweens = false,
 }
 
--- Exemplo de uso:
--- local Config = require(path.to.Config)
--- print(Config.UI.DefaultFadeTime)
--- if Config.Debug.EnableLogs then print("Logs ativos") end
-
 return Config
-
